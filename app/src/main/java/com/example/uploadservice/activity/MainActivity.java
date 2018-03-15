@@ -1,5 +1,6 @@
 package com.example.uploadservice.activity;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -13,6 +14,9 @@ import android.widget.Toast;
 
 import com.example.uploadservice.R;
 import com.example.uploadservice.upload.ProgressRequestBody;
+import com.example.uploadservice.util.permission.KbPermission;
+import com.example.uploadservice.util.permission.KbPermissionListener;
+import com.example.uploadservice.util.permission.KbPermissionUtils;
 
 import java.io.File;
 
@@ -48,7 +52,29 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if (v == mUploadPicture) {
+            if (KbPermissionUtils.needRequestPermission()) {
+                KbPermission.with(this)
+                        .requestCode(200)
+                        .permission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        .callBack(new KbPermissionListener() {
+                            @Override
+                            public void onPermit(int requestCode, String... permission) {
+                                Intent uploadPictureIntent = new Intent(mContext, PictureSelectActivity.class);
+                                startActivity(uploadPictureIntent);
+                                overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom);
+                            }
 
+                            @Override
+                            public void onCancel(int requestCode, String... permission) {
+                                KbPermissionUtils.goSetting(mContext);
+                            }
+                        })
+                        .send();
+            } else {
+                Intent uploadPictureIntent = new Intent(mContext, PictureSelectActivity.class);
+                startActivity(uploadPictureIntent);
+                overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom);
+            }
         } else if (v == mUploadVideo) {
 
         }
