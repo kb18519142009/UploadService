@@ -6,4 +6,5 @@
     <color name="main_color">#ffda44</color>
     <color name="title">#2e2e2e</color>
     <color name="white">#ffffffff</color>
+    <color name="sub_title">#ababab</color>
 </resources>
