@@ -28,6 +28,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.uploadservice.R;
 import com.example.uploadservice.adapter.PhotoListAdapter;
+import com.example.uploadservice.util.SystemUtil;
 import com.example.uploadservice.util.permission.KbPermission;
 import com.example.uploadservice.util.permission.KbPermissionListener;
 import com.example.uploadservice.util.permission.KbPermissionUtils;
@@ -86,7 +87,7 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_picture_select);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//            SystemUtil.setLightStatusBar(this, Color.WHITE);
+            SystemUtil.setLightStatusBar(this, Color.WHITE);
         }
         mContext = PictureSelectActivity.this;
 
@@ -105,7 +106,7 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
     }
 
     private void initView() {
-        mBack = findViewById(R.id.iv_back);
+        mBack = findViewById(R.id.btn_back);
         mBack.setOnClickListener(this);
 
         mTvPreview = (TextView) findViewById(R.id.tv_preview);
@@ -196,7 +197,7 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.iv_back:
+            case R.id.btn_back:
                 finish();
                 break;
             case R.id.tv_preview:
@@ -280,5 +281,12 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         KbPermission.onRequestPermissionResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        //Activity退出时动画
+        overridePendingTransition(R.anim.slide_out_bottom, R.anim.slide_out_top);
     }
 }
