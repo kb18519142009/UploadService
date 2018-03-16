@@ -4,4 +4,6 @@
     <dimen name="other_toolbar_height">44dp</dimen>
     <dimen name="divider_with_shadow_height">2.5dp</dimen>
     <dimen name="toolbar_title_size">17sp</dimen>
+    <dimen name="place_holder_size">200dp</dimen>
+    <dimen name="common_margin_30dp">30dp</dimen>
 </resources>

@@ -7,4 +7,6 @@
     <color name="title">#2e2e2e</color>
     <color name="white">#ffffffff</color>
     <color name="sub_title">#ababab</color>
+    <color name="dialog_background_color">#923d3a3a</color>
+    <color name="black">#000000</color>
 </resources>
