@@ -5,37 +5,9 @@
     android:background="#f5f5f5"
     android:orientation="vertical">
 
-    <RelativeLayout
+    <include
         android:id="@+id/rl_title"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/other_toolbar_height"
-        android:background="@color/white">
-
-
-        <FrameLayout
-            android:id="@+id/iv_back"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:paddingLeft="10dp">
-
-            <ImageView
-                android:layout_width="9dp"
-                android:layout_height="16dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginEnd="20dp"
-                android:src="@drawable/ic_back_dark" />
-
-        </FrameLayout>
-
-        <TextView
-            android:id="@+id/tv_photo_select"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="选择图片"
-            android:textColor="#2e2e2e"
-            android:textSize="16sp" />
-    </RelativeLayout>
+        layout="@layout/layout_tool_bar" />
 
     <RelativeLayout
         android:id="@+id/rl_bottom"
@@ -48,9 +20,9 @@
             android:id="@+id/tv_preview"
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:paddingLeft="15dp"
-            android:gravity="center_vertical"
             android:clickable="false"
+            android:gravity="center_vertical"
+            android:paddingLeft="15dp"
             android:text="预览"
             android:textColor="#ababab"
             android:textSize="14sp" />
@@ -59,10 +31,10 @@
             android:id="@+id/tv_next"
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:gravity="center_vertical"
             android:layout_alignParentRight="true"
-            android:paddingRight="15dp"
             android:clickable="false"
+            android:gravity="center_vertical"
+            android:paddingRight="15dp"
             android:text="下一步"
             android:textColor="#ababab"
             android:textSize="14sp" />
