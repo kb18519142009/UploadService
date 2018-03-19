@@ -102,45 +102,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(uploadVideoIntent);
         overridePendingTransition(R.anim.slide_in_bottom, R.anim.slide_out_bottom);
     }
-
-    private void uploadPicture() {
-        File file = new File(mPicPath);
-
-        //实现上传进度监听
-        ProgressRequestBody requestFile = new ProgressRequestBody(file, "image/*", new ProgressRequestBody.UploadCallbacks() {
-            @Override
-            public void onProgressUpdate(int percentage) {
-                Log.e(TAG, "onProgressUpdate: " + percentage);
-            }
-
-            @Override
-            public void onError() {
-
-            }
-
-            @Override
-            public void onFinish() {
-            }
-        });
-
-        MultipartBody.Part body =
-                MultipartBody.Part.createFormData("file", file.getName(), requestFile);
-
-//        mApiV1.uploadFile(body).enqueue(new RespCallback<UploadVideoResp>(mContext) {
-//            @Override
-//            public void onResp(@NonNull Call<UploadVideoResp> call, @NonNull Response<UploadVideoResp> response) {
-//
-//                UploadVideoResp resp = response.body();
-//                if (resp != null) {
-//                    submitFeedback(resp.getResult());
-//                }
-//            }
-//
-//            @Override
-//            public void onFail(@NonNull Call<UploadVideoResp> call, @NonNull Throwable t) {
-//                Log.e(TAG, "onFail: " + t.toString());
-//                Toast.makeText(mContext, "上传失败，稍后重试", Toast.LENGTH_SHORT).show();
-//            }
-//        });
-    }
 }

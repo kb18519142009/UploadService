@@ -110,10 +110,8 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
         mBack.setOnClickListener(this);
 
         mTvPreview = (TextView) findViewById(R.id.tv_preview);
-//        mTvPreview.setOnClickListener(this);
 
         mNext = (TextView) findViewById(R.id.tv_next);
-//        mNext.setOnClickListener(this);
 
         mIvPreview = findViewById(R.id.iv_preview);
         mIvPreview.setOnClickListener(this);
