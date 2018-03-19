@@ -21,8 +21,7 @@
             android:layout_width="60dp"
             android:layout_height="match_parent"
             android:clickable="false"
-            android:gravity="center_vertical"
-            android:paddingLeft="15dp"
+            android:gravity="center"
             android:text="预览"
             android:textColor="#ababab"
             android:textSize="14sp" />
@@ -31,11 +30,10 @@
             android:id="@+id/tv_next"
             android:layout_width="60dp"
             android:layout_height="match_parent"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:clickable="false"
-            android:gravity="center_vertical"
-            android:paddingRight="15dp"
-            android:text="下一步"
+            android:gravity="center"
+            android:text="上传"
             android:textColor="#ababab"
             android:textSize="14sp" />
     </RelativeLayout>
@@ -54,6 +52,22 @@
         android:layout_height="match_parent"
         android:background="#88000000"
         android:visibility="gone" />
+
+    <FrameLayout
+        android:id="@+id/fl_circle_progress"
+        android:layout_width="100dp"
+        android:layout_height="120dp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/bg_progress"
+        android:visibility="gone">
+        <!--环形进度条-->
+        <com.example.uploadservice.view.KbWithWordsCircleProgressBar
+            android:id="@+id/circle_progress"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_gravity="center"
+            android:visibility="visible" />
+    </FrameLayout>
 
     <View
         android:layout_width="match_parent"
