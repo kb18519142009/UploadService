@@ -1,12 +1,7 @@
 package com.example.uploadservice.activity;
 
-import android.Manifest;
-import android.animation.Animator;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
@@ -19,9 +14,7 @@ import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
@@ -29,7 +22,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,16 +34,11 @@ import com.example.uploadservice.util.SizeUtils;
 import com.example.uploadservice.util.SystemUtil;
 import com.example.uploadservice.util.VideoFileUtils;
 import com.example.uploadservice.util.permission.KbPermission;
-import com.example.uploadservice.util.permission.KbPermissionListener;
-import com.example.uploadservice.util.permission.KbPermissionUtils;
 import com.example.uploadservice.view.SquareRelativeLayout;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class VideoSelectActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener {
 
@@ -59,8 +46,6 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
     private static final int MSG_SHOW_VIDEO_LIST = 1000;
     private static final int MSG_HIDE_PLAY_PAUS_VIEW = 2000;
     private static final int MSG_DELAY_FIRST_FRAME = 3000;
-    //是否已显示过该活动的规则
-    private static final String KEY_HAS_SHOWED_VIDEO_RECORD_RULES_PREFIX = "KEY_HAS_SHOWED_VIDEO_RECORD_RULES_PREFIX";
 
     public static final int STATE_IDLE = 0; //通常状态
     public static final int STATE_PLAYING = 1; //视频正在播放
@@ -79,10 +64,6 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
     private TextView mTvEmpty; //空白时文案
     private FrameLayout mLoading; // 加载中
 
-    private LinearLayout mFileSelect; // 文件选择按钮
-    private RelativeLayout mFileContent; // 文件选择布局
-    private RecyclerView mFileList; // 文件选择列表
-
     public List<Topic> mAllVideoList = new ArrayList<>(); // 视频信息集合
     private VideoListAdapter mVideoAdapter; // 视频列表适配器
     private MediaPlayer mMediaPlayer = new MediaPlayer(); // 播放器
@@ -90,9 +71,7 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
     private Context mContext;
 
     private int mCurState = STATE_IDLE; // 当前状态
-    private boolean mFileSelectIsOpen = false; // 是否打开文件选择
     private boolean mPlayPuseIsShow = false; // 是否显示了播放暂停
-    private boolean mIsPermission; //是否授予了权限
 
     @SuppressLint("HandlerLeak")
     public Handler mHandler = new Handler() {
@@ -182,20 +161,11 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
         mTvCancel = (TextView) findViewById(R.id.tv_cancel);
 
         mVideoPlay = findViewById(R.id.rl_video_play);
-//        addSurfaceView(mVideoPlay);
 
         mVideoList = (RecyclerView) findViewById(R.id.rv_video_list);
         mVideoList.setLayoutManager(new GridLayoutManager(this, 3));
         mVideoAdapter = new VideoListAdapter(mContext);
         mVideoList.setAdapter(mVideoAdapter);
-
-        // 最近添加按钮
-        mFileSelect = (LinearLayout) findViewById(R.id.ll_new_add);
-        // 最近添加布局
-        mFileContent = (RelativeLayout) findViewById(R.id.rl_new_add_content);
-        // 最近添加列表
-        mFileList = (RecyclerView) findViewById(R.id.rv_new_add);
-        mFileList.setLayoutManager(new LinearLayoutManager(mContext));
 
         mLoading = findViewById(R.id.fl_loading);
 
@@ -276,96 +246,10 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
             }
         });
 
-        mVideoAdapter.setOnVideoRecordListener(new VideoListAdapter.OnVideoRecordListener() {
-            @Override
-            public void onVideoRecord() {
-            }
-        });
-
-        mFileSelect.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mFileSelectIsOpen) {
-                    mFileSelectIsOpen = false;
-                    mTitleNext.setVisibility(View.VISIBLE);
-//                    iv_new_add.setImageResource(R.mipmap.ic_keyboard_arrow_down);
-                    AnimatorSet set = new AnimatorSet();
-                    set.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animator) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animator) {
-                            mFileContent.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animator) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animator) {
-
-                        }
-                    });
-                    set.playTogether(ObjectAnimator.ofFloat(mFileList, "translationY", 0, getWindowManager().getDefaultDisplay().getHeight()),
-                            ObjectAnimator.ofFloat(mFileList, "alpha", 1, 0));
-                    set.setDuration(400);
-                    set.start();
-                } else {
-                    mFileSelectIsOpen = true;
-                    mTitleNext.setVisibility(View.GONE);
-//                    iv_new_add.setImageResource(R.mipmap.ic_keyboard_arrow_up);
-                    mFileContent.setVisibility(View.VISIBLE);
-
-                    AnimatorSet set = new AnimatorSet();
-                    set.playTogether(ObjectAnimator.ofFloat(mFileList, "translationY", getWindowManager().getDefaultDisplay().getHeight(), 0),
-                            ObjectAnimator.ofFloat(mFileList, "alpha", 0, 1));
-                    set.setDuration(400);
-                    set.start();
-                }
-            }
-        });
-
         mTvCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mFileSelectIsOpen) {
-                    mFileSelectIsOpen = false;
-                    mTitleNext.setVisibility(View.VISIBLE);
-//                    iv_new_add.setImageResource(R.mipmap.ic_keyboard_arrow_down);
-                    AnimatorSet set = new AnimatorSet();
-                    set.addListener(new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animator) {
-
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animator) {
-                            mFileContent.setVisibility(View.GONE);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animator) {
-
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animator) {
-
-                        }
-                    });
-                    set.playTogether(ObjectAnimator.ofFloat(mFileList, "translationY", 0, getWindowManager().getDefaultDisplay().getHeight()),
-                            ObjectAnimator.ofFloat(mFileList, "alpha", 1, 0));
-                    set.setDuration(400);
-                    set.start();
-                } else {
-                    finish();
-                }
+                finish();
             }
         });
 

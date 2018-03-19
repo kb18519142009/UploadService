@@ -45,31 +45,6 @@
             android:textColor="@color/title"
             android:textSize="17.1sp" />
 
-        <LinearLayout
-            android:id="@+id/ll_new_add"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:orientation="horizontal"
-            android:visibility="gone">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:text="本地相册"
-                android:textColor="@color/title"
-                android:textSize="17.1sp" />
-
-            <!--<ImageView
-                android:id="@+id/iv_new_add"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="4dp" />-->
-            <!--android:src="@mipmap/ic_keyboard_arrow_down"-->
-
-        </LinearLayout>
     </RelativeLayout>
 
     <com.example.uploadservice.view.SquareRelativeLayout
