@@ -21,17 +21,25 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.uploadservice.R;
 import com.example.uploadservice.adapter.PhotoListAdapter;
+import com.example.uploadservice.model.Resp;
+import com.example.uploadservice.model.UploadVideoResp;
+import com.example.uploadservice.net.ApiHelper;
+import com.example.uploadservice.net.ApiInterface;
+import com.example.uploadservice.upload.ProgressRequestBody;
 import com.example.uploadservice.util.SystemUtil;
 import com.example.uploadservice.util.permission.KbPermission;
 import com.example.uploadservice.util.permission.KbPermissionListener;
 import com.example.uploadservice.util.permission.KbPermissionUtils;
+import com.example.uploadservice.view.KbWithWordsCircleProgressBar;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -39,34 +47,40 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import okhttp3.MultipartBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class PictureSelectActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "IconSelectActivity";
     public static final String PATH_IMAGE = "PATH_IMAGE";
-    // 拍照
-    private static final int PHOTO_REQUEST_TAKEPHOTO = 11;
+    private static final int PHOTO_REQUEST_TAKEPHOTO = 11; //拍照
 
-    // 返回
-    private FrameLayout mBack;
-    // 预览
-    private TextView mTvPreview;
-    // 下一步
-    private TextView mNext;
-    // 图片列表
-    private RecyclerView mPhotoList;
-    // 预览图片
-    private ImageView mIvPreview;
+    private FrameLayout mBack; //返回
+    private TextView mTvPreview; //预览
+    private TextView mNext; //下一步
+    private RecyclerView mPhotoList; //图片列表
+    private ImageView mIvPreview; //预览图片
+    //进度条相关
+    @BindView(R.id.fl_circle_progress)
+    ViewGroup mFlCircleProgress;
+
+    @BindView(R.id.circle_progress)
+    KbWithWordsCircleProgressBar mCircleProgress;
 
     private Context mContext;
+    private ApiInterface mApi;
 
-    // 照片列表适配器
-    private PhotoListAdapter mPhotoListAdapter;
-    // 存放本地图片路径
-    private List<String> mPhotoPathList = new ArrayList<>();
+    private PhotoListAdapter mPhotoListAdapter; //照片列表适配器
 
-    // 保存图片的路径
-    private File FILEPATH_FILE = Environment.getExternalStorageDirectory();
-    // 图片名字
-    private String imageName = "";
+    private List<String> mPhotoPathList = new ArrayList<>(); //存放本地图片路径的集合
+
+    private File FILEPATH_FILE = Environment.getExternalStorageDirectory(); //保存图片的路径
+    private String imageName = ""; //图片名字
+    private String mPicPath; //想要上传的图片路径
 
     private Handler mHandler = new Handler() {
         @Override
@@ -90,6 +104,9 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
             SystemUtil.setLightStatusBar(this, Color.WHITE);
         }
         mContext = PictureSelectActivity.this;
+        ButterKnife.bind(this);
+        mApi = ApiHelper.getInstance().buildRetrofit("http://192.168.1.200:9090/")
+                .createService(ApiInterface.class);
 
         initView();
         getLocalPhoto();
@@ -124,6 +141,7 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
         mPhotoListAdapter.setOnItemClickListener(new PhotoListAdapter.OnItemClickListener() {
             @Override
             public void onSelected(String photoPath) {
+                mPicPath = photoPath;
                 Glide.with(mContext).load(photoPath).into(mIvPreview);
                 mTvPreview.setTextColor(getResources().getColor(R.color.title));
                 mTvPreview.setOnClickListener(PictureSelectActivity.this);
@@ -205,8 +223,9 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
                 mIvPreview.setVisibility(View.GONE);
                 break;
             case R.id.tv_next:
-
-
+                if (!TextUtils.isEmpty(mPicPath)) {
+                    uploadPicture();
+                }
                 break;
         }
     }
@@ -217,8 +236,20 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
         if (resultCode == 0) return;
         // 拍照回调
         if (requestCode == PHOTO_REQUEST_TAKEPHOTO) {
-
+            mPicPath = FILEPATH_FILE + "/" + imageName;
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        KbPermission.onRequestPermissionResult(requestCode, permissions, grantResults);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        //Activity退出时动画
+        overridePendingTransition(R.anim.slide_out_bottom, R.anim.slide_out_top);
     }
 
     /**
@@ -265,6 +296,49 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
         return uri;
     }
 
+    private void uploadPicture() {
+        mFlCircleProgress.setVisibility(View.VISIBLE);
+        File file = new File(mPicPath);
+        //是否需要压缩
+        //实现上传进度监听
+        ProgressRequestBody requestFile = new ProgressRequestBody(file, "image/*", new ProgressRequestBody.UploadCallbacks() {
+            @Override
+            public void onProgressUpdate(int percentage) {
+                Log.e(TAG, "onProgressUpdate: " + percentage);
+                mCircleProgress.setProgress(percentage);
+            }
+
+            @Override
+            public void onError() {
+
+            }
+
+            @Override
+            public void onFinish() {
+            }
+        });
+
+        MultipartBody.Part body =
+                MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+        mApi.uploadFile(body).enqueue(new Callback<UploadVideoResp>() {
+            @Override
+            public void onResponse(Call<UploadVideoResp> call, Response<UploadVideoResp> response) {
+                mFlCircleProgress.setVisibility(View.GONE);
+                UploadVideoResp resp = response.body();
+                if (resp != null) {
+                    Toast.makeText(mContext, "图片上传成功！", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UploadVideoResp> call, Throwable t) {
+                mFlCircleProgress.setVisibility(View.GONE);
+                Toast.makeText(mContext, "图片上传失败，稍后重试", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     /**
      * 获取当前时间
      *
@@ -274,17 +348,5 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
         Date date = new Date(System.currentTimeMillis());
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMddHHmmssSS");
         return dateFormat.format(date);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        KbPermission.onRequestPermissionResult(requestCode, permissions, grantResults);
-    }
-
-    @Override
-    public void finish() {
-        super.finish();
-        //Activity退出时动画
-        overridePendingTransition(R.anim.slide_out_bottom, R.anim.slide_out_top);
     }
 }

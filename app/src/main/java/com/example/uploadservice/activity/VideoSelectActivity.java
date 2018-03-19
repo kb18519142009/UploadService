@@ -30,15 +30,27 @@ import com.bumptech.glide.Glide;
 import com.example.uploadservice.R;
 import com.example.uploadservice.adapter.VideoListAdapter;
 import com.example.uploadservice.model.Topic;
+import com.example.uploadservice.model.UploadVideoResp;
+import com.example.uploadservice.net.ApiHelper;
+import com.example.uploadservice.net.ApiInterface;
+import com.example.uploadservice.upload.ProgressRequestBody;
 import com.example.uploadservice.util.SizeUtils;
 import com.example.uploadservice.util.SystemUtil;
 import com.example.uploadservice.util.VideoFileUtils;
 import com.example.uploadservice.util.permission.KbPermission;
+import com.example.uploadservice.view.KbWithWordsCircleProgressBar;
 import com.example.uploadservice.view.SquareRelativeLayout;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import okhttp3.MultipartBody;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class VideoSelectActivity extends AppCompatActivity implements TextureView.SurfaceTextureListener {
 
@@ -52,23 +64,45 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
     public static final int STATE_PAUSED = 2; //视频暂停
     public static final int DEFAULT_SHOW_TIME = 3000; // 控制器的默认显示时间3秒
 
-    private TextView mTitleNext; // 下一步
-    private TextView mTvCancel; // 取消
-    private SquareRelativeLayout mVideoPlay; //承载播放器的布局
+    @BindView(R.id.tv_next)
+    TextView mTitleNext; // 下一步
+
+    @BindView(R.id.tv_cancel)
+    TextView mTvCancel; // 取消
+
+    @BindView(R.id.iv_empty)
+    ImageView mIvEmpty; //占位图
+
+    @BindView(R.id.tv_empty)
+    TextView mTvEmpty; //空白时文案
+
+    @BindView(R.id.rl_video_play)
+    SquareRelativeLayout mVideoPlay; //承载播放器的布局
+
+    @BindView(R.id.rv_video_list)
+    RecyclerView mVideoList; //视频列表
+
+    @BindView(R.id.fl_loading)
+    FrameLayout mLoading; //加载中
+
+    //进度条相关
+    @BindView(R.id.fl_circle_progress)
+    ViewGroup mFlCircleProgress;
+
+    @BindView(R.id.circle_progress)
+    KbWithWordsCircleProgressBar mCircleProgress;
+
     private TextureView mTextureview; //更换为TextureView
     private Surface mSurface;
-    private RecyclerView mVideoList; // 视频列表
     private ImageView mPlayPause; // 播放暂停按钮
     private ImageView mVideoBg; // 视频缩略图
-    private ImageView mIvEmpty; //占位图
-    private TextView mTvEmpty; //空白时文案
-    private FrameLayout mLoading; // 加载中
 
     public List<Topic> mAllVideoList = new ArrayList<>(); // 视频信息集合
     private VideoListAdapter mVideoAdapter; // 视频列表适配器
     private MediaPlayer mMediaPlayer = new MediaPlayer(); // 播放器
 
     private Context mContext;
+    private ApiInterface mApi;
 
     private int mCurState = STATE_IDLE; // 当前状态
     private boolean mPlayPuseIsShow = false; // 是否显示了播放暂停
@@ -117,6 +151,9 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
         }
         Log.e(TAG, "onCreate: " + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath());
         mContext = VideoSelectActivity.this;
+        ButterKnife.bind(this);
+        mApi = ApiHelper.getInstance().buildRetrofit("http://192.168.1.200:9090/")
+                .createService(ApiInterface.class);
 
         initView();
 
@@ -154,20 +191,10 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
      *
      */
     private void initView() {
-        mIvEmpty = findViewById(R.id.iv_empty);
-        mTvEmpty = findViewById(R.id.tv_empty);
 
-        mTitleNext = (TextView) findViewById(R.id.tv_next);
-        mTvCancel = (TextView) findViewById(R.id.tv_cancel);
-
-        mVideoPlay = findViewById(R.id.rl_video_play);
-
-        mVideoList = (RecyclerView) findViewById(R.id.rv_video_list);
         mVideoList.setLayoutManager(new GridLayoutManager(this, 3));
         mVideoAdapter = new VideoListAdapter(mContext);
         mVideoList.setAdapter(mVideoAdapter);
-
-        mLoading = findViewById(R.id.fl_loading);
 
     }
 
@@ -280,6 +307,8 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
                         mPlayPause.setVisibility(View.VISIBLE);
                         mPlayPuseIsShow = true;
                     }
+
+                    uploadVideo();
                 }
             }
         });
@@ -449,6 +478,49 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
      */
     private void deleteSurfaceView(RelativeLayout relativeLayout) {
         relativeLayout.removeAllViews();
+    }
+
+    private void uploadVideo() {
+        mFlCircleProgress.setVisibility(View.VISIBLE);
+        File file = new File(mVideoAdapter.getCheckPosition().getLocalVideoPath());
+        //是否需要压缩
+        //实现上传进度监听
+        ProgressRequestBody requestFile = new ProgressRequestBody(file, "image/*", new ProgressRequestBody.UploadCallbacks() {
+            @Override
+            public void onProgressUpdate(int percentage) {
+                Log.e(TAG, "onProgressUpdate: " + percentage);
+                mCircleProgress.setProgress(percentage);
+            }
+
+            @Override
+            public void onError() {
+
+            }
+
+            @Override
+            public void onFinish() {
+            }
+        });
+
+        MultipartBody.Part body =
+                MultipartBody.Part.createFormData("file", file.getName(), requestFile);
+
+        mApi.uploadFile(body).enqueue(new Callback<UploadVideoResp>() {
+            @Override
+            public void onResponse(Call<UploadVideoResp> call, Response<UploadVideoResp> response) {
+                mFlCircleProgress.setVisibility(View.GONE);
+                UploadVideoResp resp = response.body();
+                if (resp != null) {
+                    Toast.makeText(mContext, "视频上传成功！", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<UploadVideoResp> call, Throwable t) {
+                mFlCircleProgress.setVisibility(View.GONE);
+                Toast.makeText(mContext, "视频上传失败，稍后重试", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
