@@ -104,10 +104,8 @@ public class VideoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     mOnItemClickListener.onSelected(mList.get(position));
                     Log.e(TAG, "onClick: " + mList.get(position).getLocalVideoPath());
                 }
-//                    notifyItemChanged(mCheckPosition);
                 mCheckPosition = position;
                 notifyDataSetChanged();
-//                    notifyItemChanged(mCheckPosition);
             }
         });
     }
