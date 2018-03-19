@@ -152,7 +152,7 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
         Log.e(TAG, "onCreate: " + Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath());
         mContext = VideoSelectActivity.this;
         ButterKnife.bind(this);
-        mApi = ApiHelper.getInstance().buildRetrofit("http://192.168.1.200:9090/")
+        mApi = ApiHelper.getInstance().buildRetrofit(ApiHelper.BASE_URL)
                 .createService(ApiInterface.class);
 
         initView();

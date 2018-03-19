@@ -105,7 +105,7 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
         }
         mContext = PictureSelectActivity.this;
         ButterKnife.bind(this);
-        mApi = ApiHelper.getInstance().buildRetrofit("http://192.168.1.200:9090/")
+        mApi = ApiHelper.getInstance().buildRetrofit(ApiHelper.BASE_URL)
                 .createService(ApiInterface.class);
 
         initView();

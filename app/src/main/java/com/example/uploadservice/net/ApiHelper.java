@@ -15,16 +15,17 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiHelper {
 
     private static final String TAG = "ApiHelper";
+    public static final String BASE_URL = "http://192.168.1.200:9090/";
 
     private static ApiHelper mInstance;
     private Retrofit mRetrofit;
     private OkHttpClient mHttpClient;
 
     private ApiHelper() {
-        this( 30, 30, 30);
+        this(30, 30, 30);
     }
 
-    public ApiHelper( int connTimeout, int readTimeout, int writeTimeout) {
+    public ApiHelper(int connTimeout, int readTimeout, int writeTimeout) {
         OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 .connectTimeout(connTimeout, TimeUnit.SECONDS)
                 .readTimeout(readTimeout, TimeUnit.SECONDS)
