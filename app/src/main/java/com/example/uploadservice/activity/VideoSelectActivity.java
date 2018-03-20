@@ -93,7 +93,7 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
     KbWithWordsCircleProgressBar mCircleProgress;
 
     private TextureView mTextureview; //更换为TextureView
-    private Surface mSurface;
+    private Surface mSurface; //surface
     private ImageView mPlayPause; // 播放暂停按钮
     private ImageView mVideoBg; // 视频缩略图
 
