@@ -4,7 +4,7 @@ package com.example.uploadservice.model;
  * Description：
  * Created by kang on 2017/10/21.
  */
-public class UploadVideoResp extends Resp{
+public class UploadVideoResp extends Resp {
 
     /**
      * result : {"contentType":"video/mp4","id":3,"url":"http://daishu.com/dia.jpg","dimension":"600x652"}
