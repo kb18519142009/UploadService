@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.uploadservice.R;
 import com.example.uploadservice.adapter.VideoListAdapter;
+import com.example.uploadservice.listener.PhotoAlbumListener;
 import com.example.uploadservice.model.Topic;
 import com.example.uploadservice.model.UploadVideoResp;
 import com.example.uploadservice.net.ApiHelper;
@@ -248,11 +249,10 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
      * 设置监听
      */
     private void setListener() {
-        mVideoAdapter.setOnItemClickListener(new VideoListAdapter.OnItemClickListener() {
+        mVideoAdapter.setPhotoAlbumListener(new PhotoAlbumListener<Topic>() {
             @Override
-            public void onSelected(Topic videoItem) {
-
-                if (videoItem == mVideoAdapter.getCheckPosition())
+            public void onSelected(Topic topic) {
+                if (topic == mVideoAdapter.getCheckPosition())
                     return;
                 if (mMediaPlayer != null) {
                     mMediaPlayer.stop();
@@ -261,10 +261,10 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
                     mCurState = STATE_IDLE;
 
                     deleteSurfaceView(mVideoPlay);
-                    addSurfaceView(mVideoPlay, videoItem);
+                    addSurfaceView(mVideoPlay, topic);
                     initVideo();
                 }
-                Glide.with(mContext).load(videoItem.getLocalVideoPath()).into(mVideoBg);
+                Glide.with(mContext).load(topic.getLocalVideoPath()).into(mVideoBg);
                 // 默认背景显示，播放按钮显示
                 mVideoBg.setVisibility(View.VISIBLE);
                 mPlayPause.setImageResource(R.drawable.img_play);
