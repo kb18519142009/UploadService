@@ -30,11 +30,13 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.uploadservice.R;
 import com.example.uploadservice.adapter.PhotoListAdapter;
+import com.example.uploadservice.adapter.decoration.ThreeGridDecoration;
 import com.example.uploadservice.model.Resp;
 import com.example.uploadservice.model.UploadVideoResp;
 import com.example.uploadservice.net.ApiHelper;
 import com.example.uploadservice.net.ApiInterface;
 import com.example.uploadservice.upload.ProgressRequestBody;
+import com.example.uploadservice.util.SizeUtils;
 import com.example.uploadservice.util.SystemUtil;
 import com.example.uploadservice.util.permission.KbPermission;
 import com.example.uploadservice.util.permission.KbPermissionListener;
@@ -138,6 +140,8 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
         mPhotoList.setLayoutManager(new GridLayoutManager(this, 3));
         mPhotoListAdapter = new PhotoListAdapter(PictureSelectActivity.this);
         mPhotoList.setAdapter(mPhotoListAdapter);
+        mPhotoList.addItemDecoration(new ThreeGridDecoration(SizeUtils.dp2px(mContext, 2),
+                SizeUtils.dp2px(mContext, 2)));
         mPhotoListAdapter.setOnItemClickListener(new PhotoListAdapter.OnItemClickListener() {
             @Override
             public void onSelected(String photoPath) {

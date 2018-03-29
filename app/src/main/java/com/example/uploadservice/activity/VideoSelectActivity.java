@@ -29,6 +29,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.uploadservice.R;
 import com.example.uploadservice.adapter.VideoListAdapter;
+import com.example.uploadservice.adapter.decoration.ThreeGridDecoration;
 import com.example.uploadservice.listener.PhotoAlbumListener;
 import com.example.uploadservice.model.Topic;
 import com.example.uploadservice.model.UploadVideoResp;
@@ -196,7 +197,8 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
         mVideoList.setLayoutManager(new GridLayoutManager(this, 3));
         mVideoAdapter = new VideoListAdapter(mContext);
         mVideoList.setAdapter(mVideoAdapter);
-
+        mVideoList.addItemDecoration(new ThreeGridDecoration(SizeUtils.dp2px(mContext, 2),
+                SizeUtils.dp2px(mContext, 2)));
     }
 
     /**
