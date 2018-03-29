@@ -97,17 +97,6 @@ public class VideoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (mCheckPosition == position) {
             vh.mSelected.setVisibility(View.VISIBLE);
         }
-        vh.mThumb.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onSelected(mList.get(position));
-                    Log.e(TAG, "onClick: " + mList.get(position).getLocalVideoPath());
-                }
-                mCheckPosition = position;
-                notifyDataSetChanged();
-            }
-        });
     }
 
     public Topic getCheckPosition() {
@@ -124,20 +113,26 @@ public class VideoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     class VideoListViewHolder extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.iv_thumb)
         ImageView mThumb;
-
+        @BindView(R.id.tv_duration)
         TextView mDuration;
-
+        @BindView(R.id.iv_selected)
         ImageView mSelected;
 
         public VideoListViewHolder(View itemView) {
             super(itemView);
+            ButterKnife.bind(this, itemView);
+        }
 
-            mThumb = itemView.findViewById(R.id.iv_thumb);
-
-            mDuration = itemView.findViewById(R.id.tv_duration);
-
-            mSelected = itemView.findViewById(R.id.iv_selected);
+        @OnClick(R.id.iv_thumb)
+        void clickedThumb() {
+            if (mOnItemClickListener != null) {
+                mOnItemClickListener.onSelected(mList.get(getAdapterPosition()));
+                Log.e(TAG, "onClick: " + mList.get(getAdapterPosition()).getLocalVideoPath());
+            }
+            mCheckPosition = getAdapterPosition();
+            notifyDataSetChanged();
         }
     }
 }
