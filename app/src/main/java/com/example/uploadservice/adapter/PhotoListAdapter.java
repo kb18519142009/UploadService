@@ -13,6 +13,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.uploadservice.R;
+import com.example.uploadservice.listener.PhotoAlbumListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,9 +38,11 @@ public class PhotoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private int mCheckPosition = 0;
 
-    private OnItemClickListener mOnItemClickListener;
+    private PhotoAlbumListener<String> mPhotoAlbumListener;
 
-    private OnTakePhotoListener mOnTakePhotoListener;
+    public void setPhotoAlbumListener(PhotoAlbumListener<String> photoAlbumListener) {
+        this.mPhotoAlbumListener = photoAlbumListener;
+    }
 
     public PhotoListAdapter(Context context) {
         this.mContext = context;
@@ -93,17 +96,6 @@ public class PhotoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             if (mCheckPosition == position) {
                 vh.mSelected.setVisibility(View.VISIBLE);
             }
-            vh.mPhoto.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onSelected(mList.get(position - 1));
-                        Log.e(TAG, "onClick: " + mList.get(position - 1));
-                    }
-                    mCheckPosition = position;
-                    notifyDataSetChanged();
-                }
-            });
         }
     }
 
@@ -133,22 +125,6 @@ public class PhotoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         notifyDataSetChanged();
     }
 
-    public interface OnItemClickListener {
-        void onSelected(String photoPath);
-    }
-
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.mOnItemClickListener = onItemClickListener;
-    }
-
-    public interface OnTakePhotoListener {
-        void onTakePhoto();
-    }
-
-    public void setOnTakePhotoListener(OnTakePhotoListener onTakePhotoListener) {
-        this.mOnTakePhotoListener = onTakePhotoListener;
-    }
-
     class PhotoListViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.iv_photo)
         ImageView mPhoto;
@@ -158,6 +134,16 @@ public class PhotoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         public PhotoListViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
+        }
+
+        @OnClick(R.id.iv_photo)
+        void clickedPhoto() {
+            if (mPhotoAlbumListener != null) {
+                mPhotoAlbumListener.onSelected(mList.get(getAdapterPosition() - 1));
+                Log.e(TAG, "onClick: " + mList.get(getAdapterPosition() - 1));
+            }
+            mCheckPosition = getAdapterPosition();
+            notifyDataSetChanged();
         }
     }
 
@@ -172,8 +158,8 @@ public class PhotoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         @OnClick(R.id.iv_photo)
         void clickedCamera() {
-            if (mOnTakePhotoListener != null) {
-                mOnTakePhotoListener.onTakePhoto();
+            if (mPhotoAlbumListener != null) {
+                mPhotoAlbumListener.onClickCamera();
             }
         }
     }

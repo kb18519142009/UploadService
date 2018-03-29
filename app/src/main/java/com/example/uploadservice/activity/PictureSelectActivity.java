@@ -1,6 +1,7 @@
 package com.example.uploadservice.activity;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +32,7 @@ import com.bumptech.glide.Glide;
 import com.example.uploadservice.R;
 import com.example.uploadservice.adapter.PhotoListAdapter;
 import com.example.uploadservice.adapter.decoration.ThreeGridDecoration;
+import com.example.uploadservice.listener.PhotoAlbumListener;
 import com.example.uploadservice.model.Resp;
 import com.example.uploadservice.model.UploadVideoResp;
 import com.example.uploadservice.net.ApiHelper;
@@ -84,6 +86,7 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
     private String imageName = ""; //图片名字
     private String mPicPath; //想要上传的图片路径
 
+    @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -142,21 +145,20 @@ public class PictureSelectActivity extends AppCompatActivity implements View.OnC
         mPhotoList.setAdapter(mPhotoListAdapter);
         mPhotoList.addItemDecoration(new ThreeGridDecoration(SizeUtils.dp2px(mContext, 2),
                 SizeUtils.dp2px(mContext, 2)));
-        mPhotoListAdapter.setOnItemClickListener(new PhotoListAdapter.OnItemClickListener() {
+
+        mPhotoListAdapter.setPhotoAlbumListener(new PhotoAlbumListener<String>() {
             @Override
-            public void onSelected(String photoPath) {
-                mPicPath = photoPath;
-                Glide.with(mContext).load(photoPath).into(mIvPreview);
+            public void onSelected(String s) {
+                mPicPath = s;
+                Glide.with(mContext).load(s).into(mIvPreview);
                 mTvPreview.setTextColor(getResources().getColor(R.color.title));
                 mTvPreview.setOnClickListener(PictureSelectActivity.this);
                 mNext.setTextColor(getResources().getColor(R.color.title));
                 mNext.setOnClickListener(PictureSelectActivity.this);
             }
-        });
 
-        mPhotoListAdapter.setOnTakePhotoListener(new PhotoListAdapter.OnTakePhotoListener() {
             @Override
-            public void onTakePhoto() {
+            public void onClickCamera() {
                 mTvPreview.setClickable(false);
                 mNext.setClickable(false);
                 if (KbPermissionUtils.needRequestPermission()) {

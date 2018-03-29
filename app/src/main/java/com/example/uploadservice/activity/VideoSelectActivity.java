@@ -273,6 +273,11 @@ public class VideoSelectActivity extends AppCompatActivity implements TextureVie
                 mPlayPause.setVisibility(View.VISIBLE);
                 mPlayPuseIsShow = true;
             }
+
+            @Override
+            public void onClickCamera() {
+
+            }
         });
 
         mTvCancel.setOnClickListener(new View.OnClickListener() {

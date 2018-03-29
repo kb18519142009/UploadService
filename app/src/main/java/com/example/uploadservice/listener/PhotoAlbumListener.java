@@ -7,4 +7,6 @@ package com.example.uploadservice.listener;
 
 public interface PhotoAlbumListener<T> {
     void onSelected(T t);
+
+    void onClickCamera();
 }
