@@ -15,6 +15,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.uploadservice.R;
+import com.example.uploadservice.listener.PhotoAlbumListener;
 import com.example.uploadservice.model.Topic;
 
 import java.io.File;
@@ -39,7 +40,11 @@ public class VideoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     private int mCheckPosition = 0;
 
-    private OnItemClickListener mOnItemClickListener;
+    private PhotoAlbumListener<Topic> mPhotoAlbumListener;
+
+    public void setPhotoAlbumListener(PhotoAlbumListener<Topic> photoAlbumListener) {
+        this.mPhotoAlbumListener = photoAlbumListener;
+    }
 
     public VideoListAdapter(Context context) {
         this.mContext = context;
@@ -103,14 +108,6 @@ public class VideoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         return mList.get(mCheckPosition);
     }
 
-    public interface OnItemClickListener {
-        void onSelected(Topic videoItem);
-    }
-
-    public void setOnItemClickListener(OnItemClickListener onItemClickListener) {
-        this.mOnItemClickListener = onItemClickListener;
-    }
-
     class VideoListViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.iv_thumb)
@@ -127,8 +124,8 @@ public class VideoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
         @OnClick(R.id.iv_thumb)
         void clickedThumb() {
-            if (mOnItemClickListener != null) {
-                mOnItemClickListener.onSelected(mList.get(getAdapterPosition()));
+            if (mPhotoAlbumListener != null) {
+                mPhotoAlbumListener.onSelected(mList.get(getAdapterPosition()));
                 Log.e(TAG, "onClick: " + mList.get(getAdapterPosition()).getLocalVideoPath());
             }
             mCheckPosition = getAdapterPosition();
