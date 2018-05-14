@@ -60,7 +60,6 @@ import retrofit2.Response;
 
 public class PictureSelectActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "IconSelectActivity";
-    public static final String PATH_IMAGE = "PATH_IMAGE";
     private static final int PHOTO_REQUEST_TAKEPHOTO = 11; //拍照
 
     private FrameLayout mBack; //返回
