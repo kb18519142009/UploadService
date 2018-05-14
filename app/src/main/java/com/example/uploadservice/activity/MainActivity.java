@@ -29,7 +29,6 @@ import retrofit2.Call;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private static final String TAG = "MainActivity";
 
     private Button mUploadPicture;
     private Button mUploadVideo;
