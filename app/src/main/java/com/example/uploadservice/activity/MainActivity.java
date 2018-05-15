@@ -30,8 +30,8 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
-    private Button mUploadPicture;
-    private Button mUploadVideo;
+    private Button mUploadPicture; //图片上传
+    private Button mUploadVideo; //视频上传
 
     private Context mContext;
 
